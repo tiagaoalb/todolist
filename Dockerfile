@@ -6,7 +6,7 @@ RUN mvn clean package -DskipTests
 
 FROM openjdk:17.0.1-jdk-slim
 
-COPY --from=build /target/todolist-1.0.0.jar app.jar
+COPY --from=build /target/todolist-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 
