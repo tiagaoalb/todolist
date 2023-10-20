@@ -29,4 +29,11 @@ public class TaskModel {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    public void setTitle(String title) throws Exception {
+        if (title.length() > 50) {
+            throw new Exception("Title field must have 50 or less characters");
+        }
+        this.title = title;
+    }
 }
