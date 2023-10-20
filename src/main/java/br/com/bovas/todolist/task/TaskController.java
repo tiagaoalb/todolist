@@ -28,7 +28,8 @@ public class TaskController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Start date or end date must be newer than the current date!");
         }
         if (taskModel.getStartAt().isAfter(taskModel.getEndAt())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Start date must be older than the end date!");        }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Start date must be older than the end date!");
+        }
         var task = taskRepository.save(taskModel);
         return ResponseEntity.status(HttpStatus.OK).body((task));
     }
@@ -40,14 +41,21 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public TaskModel updateTask(@RequestBody TaskModel taskModel, HttpServletRequest request, @PathVariable UUID id) {
-        var idUser = request.getAttribute("idUser");
-
+    public ResponseEntity updateTask(@RequestBody TaskModel taskModel, HttpServletRequest request, @PathVariable UUID id) {
         var task = taskRepository.findById(id).orElse(null);
 
+        if (task == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Task not found.");
+        }
+
+        var idUser = request.getAttribute("idUser");
+
+        if ((!task.getIdUser().equals(idUser))) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("This user does not have permission to change this task!");
+        }
+
         Utils.copyNonNullProperties(taskModel, task);
-        taskModel.setIdUser((UUID) idUser);
-        taskModel.setId(id);
-        return taskRepository.save(task);
+        var taskUpdated = taskRepository.save(task);
+        return ResponseEntity.ok().body(taskUpdated);
     }
 }
